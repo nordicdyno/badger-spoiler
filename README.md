@@ -1,6 +1,6 @@
 # Description
 
-This repository intended to test can BadgerDB read wrong/incomlete data without any errors.
+This repository intended to test can BadgerDB read wrong/incomlete data without user notice.
 
 ## How to run
 
