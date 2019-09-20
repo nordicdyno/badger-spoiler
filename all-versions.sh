@@ -17,7 +17,7 @@ for ver in "${BadgerVersions[@]}"; do
   for killVal in "${KillGenSignal[@]}"; do
     export KILL_GEN_SIGNAL=$killVal
     set +e
-    go run make.go -v=$ver -- -count=100 -failfast -- -v
+    go run make.go -v=$ver -- "$@"
     echo "###### KILL_GEN_SIGNAL=$KILL_GEN_SIGNAL BADGER=$ver test exit code: $?"
     set -e
   done
