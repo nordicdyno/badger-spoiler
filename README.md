@@ -20,7 +20,7 @@ Files in database directory could be broken for a plethora of reasons, and if it
 
 ## How to run test and prove issue
 
-    ./all-versions.sh -count=100 &> tests.log
+    ./all-versions.sh -count=50 &> tests.log
 
     grep -B5 'Test:.*Test_FlipBits/values_check' tests.log
     grep 'An error on spoiled DB is expected but got nil' tests.log

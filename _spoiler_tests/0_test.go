@@ -128,15 +128,6 @@ func Test_FlipBits(t *testing.T) {
 	dataDirInfo = readHeavyDir(copyDir)
 	fmt.Printf("dataDirInfo => %#v\n", dataDirInfo)
 
-	// for _, fPath := range dataDirInfo.sstFiles {
-	// 	t.Logf("spoil bits in %v", fPath)
-	// 	err := spoilFileBits(fPath, 1)
-	// 	require.NoErrorf(t, err, "spoil bits in %v", fPath)
-	// }
-
-	err = openManifest(dataDirInfo.manifest)
-	require.NoErrorf(t, err, "read manifest %v", dataDirInfo.manifest)
-
 	after2, err := allKV(copyDir)
 	require.NoErrorf(t, err, "%v data dir open", copyDir)
 	if len(before) != len(after2) {
