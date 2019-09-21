@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -86,9 +85,6 @@ func Test_FlipBits(t *testing.T) {
 	t.Logf("remove dir %v", copyDir)
 
 	origDir := filepath.Join("testdata", origDirName)
-	// infos, err := ioutil.ReadDir(origDir)
-	// require.NoErrorf(t, err, "%v open dir", origDir)
-	// bitFlips := int(1)
 	err = Copy(origDir, copyDir)
 	require.NoErrorf(t, err, "copy %v to %v", origDir, copyDir)
 	t.Logf("copy %v to %v", origDir, copyDir)
@@ -148,8 +144,14 @@ func Test_FlipBits(t *testing.T) {
 		t.Fatalf("was %v keys, but after spoil got %v keys", len(before), len(after2))
 	}
 
-	for i, kv := range before {
-		require.Equalf(t, kv.K, after2[i].K, "Check keys equality")
-		assert.Equalf(t, kv.V, after2[i].V, "Check value of key=%x", kv.K)
-	}
+	t.Run("keys_check", func(t *testing.T) {
+		for i, kv := range before {
+			require.Equalf(t, kv.K, after2[i].K, "Check keys equality")
+		}
+	})
+	t.Run("values_check", func(t *testing.T) {
+		for i, kv := range before {
+			require.Equalf(t, kv.V, after2[i].V, "Check value of key=%x", kv.K)
+		}
+	})
 }
