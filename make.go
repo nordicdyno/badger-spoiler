@@ -23,7 +23,7 @@ func main() {
 	// compile data generator
 	buildModName := "datagen"
 	buildDir := "_" + buildModName
-	err := buildtools.InitModule(buildModName, buildDir, badgerVersion)
+	err := buildtools.InitBadgerModule(buildModName, buildDir, badgerVersion)
 	if err != nil {
 		log.Fatalf("datagen init module failed: %v", err)
 	}
@@ -43,7 +43,7 @@ func main() {
 
 	testModName := "spoiler_tests"
 	testDir := "_" + testModName
-	err = buildtools.InitModule(testModName, testDir, badgerVersion)
+	err = buildtools.InitBadgerModule(testModName, testDir, badgerVersion)
 	if err != nil {
 		log.Fatalf("Failed init module %v in directory %v: %v\n", testDir, testDir, err)
 	}

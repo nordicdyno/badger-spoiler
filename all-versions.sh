@@ -5,6 +5,7 @@ IFS=$'\n\t'
 declare -a BadgerVersions=(
   "v1.6.0"
   "v2.0.0-rc2"
+  "master"
 )
 
 # if not empty test should start generator in slow mode and kill it with provided signal number.

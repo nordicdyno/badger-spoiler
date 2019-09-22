@@ -1,6 +1,7 @@
 package buildtools
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 
 var BadgerDefaultVersion = "v1.6.0"
 
-func InitModule(name string, dir string, badgerVersion string) error {
+func InitBadgerModule(name string, dir string, badgerVersion string) error {
 	goModFile := filepath.Join(dir, "go.mod")
 	_, err := os.Stat(goModFile)
 	if err != nil {
@@ -37,15 +38,39 @@ func InitModule(name string, dir string, badgerVersion string) error {
 	}
 
 	badgerRepo := "github.com/dgraph-io/badger"
-	cmdEdit := exec.Command(
-		"go", "mod", "edit",
-		"-require", badgerRepo+"@"+badgerVersion,
-	)
-	cmdEdit.Dir = dir
-	cmdEdit.Stdout = os.Stdout
-	cmdEdit.Stderr = os.Stderr
+	var cmdBadgerDep *exec.Cmd
+	if badgerVersion == "master" {
+		badgerCheckoutDir, _ := filepath.Abs("_badger_src")
+		if !dirExists(badgerCheckoutDir) {
+			checkoutCmd := exec.Command(
+				"git", "clone",
+				"https://" + badgerRepo, badgerCheckoutDir,
+			)
+			// checkoutCmd.Dir = dir
+			checkoutCmd.Stdout = os.Stdout
+			checkoutCmd.Stderr = os.Stderr
+			fmt.Println("RUN", checkoutCmd)
+			if err := checkoutCmd.Run(); err != nil {
+				return err
+			}
+		}
+		// TODO: add git fetch, checkout, pull if not empty
 
-	if err := cmdEdit.Run(); err != nil {
+		cmdBadgerDep = exec.Command(
+			"go", "mod", "edit",
+			"-replace", badgerRepo+"="+badgerCheckoutDir,
+		)
+	} else {
+		cmdBadgerDep = exec.Command(
+			"go", "mod", "edit",
+			"-require", badgerRepo+"@"+badgerVersion,
+		)
+	}
+	cmdBadgerDep.Dir = dir
+	cmdBadgerDep.Stdout = os.Stdout
+	cmdBadgerDep.Stderr = os.Stderr
+
+	if err := cmdBadgerDep.Run(); err != nil {
 		return err
 	}
 	return nil
@@ -58,4 +83,15 @@ func BadgerBuildTag(version string) string {
 		badgerBuildTag = version[:idx]
 	}
 	return "badger_" + badgerBuildTag
+}
+
+func dirExists(path string) bool {
+	_, err := os.Stat(path);
+	if os.IsNotExist(err) {
+		return false
+	}
+	if err != nil {
+		panic(err)
+	}
+	return true
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/dgraph-io/badger"
 )
 
-
 func allKV(dbDir string) ([]KV, error) {
 	do := badger.DefaultOptions(dbDir)
 	// do.ReadOnly = true
