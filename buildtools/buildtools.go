@@ -41,20 +41,9 @@ func InitBadgerModule(name string, dir string, badgerVersion string) error {
 	var cmdBadgerDep *exec.Cmd
 	if badgerVersion == "master" {
 		badgerCheckoutDir, _ := filepath.Abs("_badger_src")
-		if !dirExists(badgerCheckoutDir) {
-			checkoutCmd := exec.Command(
-				"git", "clone",
-				"https://" + badgerRepo, badgerCheckoutDir,
-			)
-			// checkoutCmd.Dir = dir
-			checkoutCmd.Stdout = os.Stdout
-			checkoutCmd.Stderr = os.Stderr
-			fmt.Println("RUN", checkoutCmd)
-			if err := checkoutCmd.Run(); err != nil {
-				return err
-			}
+		if err := gitSources(badgerCheckoutDir, "https://" + badgerRepo, badgerVersion); err != nil {
+			return err
 		}
-		// TODO: add git fetch, checkout, pull if not empty
 
 		cmdBadgerDep = exec.Command(
 			"go", "mod", "edit",
@@ -71,6 +60,39 @@ func InitBadgerModule(name string, dir string, badgerVersion string) error {
 	cmdBadgerDep.Stderr = os.Stderr
 
 	if err := cmdBadgerDep.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func gitSources(path string, repo string, revision string) error {
+	if !dirExists(path) {
+		if err := gitCommand(path, "clone", repo, path); err != nil {
+			return err
+		}
+	}
+	if err := gitCommand(path, "fetch", "--all", "--prune"); err != nil {
+		return err
+	}
+	if err := gitCommand(path, "checkout", revision); err != nil {
+		return err
+	}
+	if err := gitCommand(path, "pull"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func gitCommand(path string, args ...string) error {
+	checkoutCmd := exec.Command("git", args...)
+	if args[0] != "clone" {
+		checkoutCmd.Dir = path
+	}
+	checkoutCmd.Stdout = os.Stdout
+	checkoutCmd.Stderr = os.Stderr
+	fmt.Println("RUN", checkoutCmd)
+	if err := checkoutCmd.Run(); err != nil {
 		return err
 	}
 	return nil
