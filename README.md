@@ -17,7 +17,7 @@ One case that looks dangerous, from data integrity point of view:
 ## Why it's bad
 
 Files in database directory could be broken for a plethora of reasons, and if it would be data in vlog file it leads to situation where badger just opens directory with wrong data  without any error or notice to user.
-So it's dangerous to start badger on any data files, what are not from verified backups. Simple start/stop is dangerous. :(
+So it's dangerous to start badger on any data files, what are not from verified backups. Simple start/stop is dangerous (at least with default options set). :(
 
 ## How to run test and prove issue
 
