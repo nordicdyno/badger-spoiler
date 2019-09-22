@@ -59,6 +59,7 @@ waitCommandLoop:
 			fmt.Printf("COMMAND Result: %v (%T)\n", cmdErr, cmdErr)
 			if e, ok := cmdErr.(*exec.ExitError); ok {
 				fmt.Printf("exit code=%v (%v)\n", e.ExitCode(), e.Error())
+				t.Fatal("datagen failed")
 			}
 			break waitCommandLoop
 		case <-killChan:
@@ -136,11 +137,13 @@ func Test_FlipBits(t *testing.T) {
 	}
 
 	t.Run("keys_check", func(t *testing.T) {
+		t.Log("keys_check", len(before))
 		for i, kv := range before {
 			require.Equalf(t, kv.K, after2[i].K, "Check keys equality")
 		}
 	})
 	t.Run("values_check", func(t *testing.T) {
+		t.Log("keys_check", len(before))
 		for i, kv := range before {
 			require.Equalf(t, kv.V, after2[i].V, "Check value of key=%x", kv.K)
 		}
