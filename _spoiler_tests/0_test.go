@@ -11,7 +11,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var iter = 0
+var (
+	iter = 0
+	dataDir = filepath.Join("testdata", "gendb")
+)
+
 
 func Test_IterationsCounter(t *testing.T) {
 	iter++
@@ -21,19 +25,23 @@ func Test_IterationsCounter(t *testing.T) {
 func Test_DBGen(t *testing.T) {
 	killGenSig := os.Getenv("KILL_GEN_SIGNAL")
 
+	err := os.RemoveAll(dataDir)
+	require.NoErrorf(t, err, "cleanup dir with generated data: %v", dataDir)
+
 	var genArgs []string
 	if killGenSig == "" {
 		genArgs = append(genArgs,
 			"-keys", "1000",
 			"-batchSize", "100",
 			"-batchTimeout", "0",
+			"-data-dir", dataDir,
 		)
 	}
-	cmd := exec.Command("../bin/datagen", genArgs...)
+	cmd := exec.Command(filepath.Join("..", "bin", "datagen"), genArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	fmt.Println("RUN:", cmd.String())
-	err := cmd.Start()
+	err = cmd.Start()
 	require.NoError(t, err)
 
 	cmdResult := make(chan error)
@@ -71,13 +79,11 @@ waitCommandLoop:
 			}
 		}
 	}
-	fmt.Println("Test_DBGen END")
+	// fmt.Println("Test_DBGen END")
 }
 
 func Test_FlipBits(t *testing.T) {
-	fmt.Println("Test_FlipBits start")
-	// origDirName := "_orig"
-	origDirName := "gendb"
+	// fmt.Println("Test_FlipBits start")
 
 	copyDir := filepath.Join("testdata", "gendb_copy")
 
@@ -85,10 +91,9 @@ func Test_FlipBits(t *testing.T) {
 	require.NoErrorf(t, err, "remove dir %v", copyDir)
 	t.Logf("remove dir %v", copyDir)
 
-	origDir := filepath.Join("testdata", origDirName)
-	err = Copy(origDir, copyDir)
-	require.NoErrorf(t, err, "copy %v to %v", origDir, copyDir)
-	t.Logf("copy %v to %v", origDir, copyDir)
+	err = Copy(dataDir, copyDir)
+	require.NoErrorf(t, err, "copy %v to %v", dataDir, copyDir)
+	t.Logf("copy %v to %v", dataDir, copyDir)
 
 	before, err := allKV(copyDir)
 	require.NoErrorf(t, err, "%v data dir open", copyDir)
@@ -99,9 +104,9 @@ func Test_FlipBits(t *testing.T) {
 	require.NoErrorf(t, err, "remove dir %v", copyDir)
 	t.Logf("remove dir %v", copyDir)
 
-	err = Copy(origDir, copyDir)
-	require.NoErrorf(t, err, "copy %v to %v", origDir, copyDir)
-	t.Logf("copy %v to %v", origDir, copyDir)
+	err = Copy(dataDir, copyDir)
+	require.NoErrorf(t, err, "copy %v to %v", dataDir, copyDir)
+	t.Logf("copy %v to %v", dataDir, copyDir)
 
 	dataDirInfo := readHeavyDir(copyDir)
 	fmt.Printf("dataDirInfo => %#v\n", dataDirInfo)

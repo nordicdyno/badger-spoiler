@@ -6,15 +6,14 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/nordicdyno/badger-spoiler/buildtools"
 )
 
-// var badgerVersion = flag.String("v", "v1.6.0", "badger version")
 var badgerVersion string
 
 func main() {
-
 	passArgs := argsParser()
 	badgerBuildTag := buildtools.BadgerBuildTag(badgerVersion)
 	fmt.Println("badgerVersion:", badgerVersion)
@@ -31,7 +30,8 @@ func main() {
 
 	cmdBuildGen := exec.Command("go", "build", "-v",
 		"-tags", badgerBuildTag,
-		"-o", "../bin/datagen", ".")
+		"-o", filepath.Join("..", "bin", "datagen"),
+		".")
 	cmdBuildGen.Dir = buildDir
 	cmdBuildGen.Stdout = os.Stdout
 	cmdBuildGen.Stderr = os.Stderr
