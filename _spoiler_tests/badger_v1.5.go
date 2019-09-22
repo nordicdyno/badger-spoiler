@@ -16,7 +16,7 @@ func allKV(dbDir string) ([]KV, error) {
 	// do.ReadOnly = true
 	db, err := badger.Open(opts)
 	if err != nil {
-		return nil, err
+		return nil, BadgerOpenError{err}
 	}
 	defer func() {
 		err = db.Close()

@@ -89,3 +89,11 @@ func flipBit(b byte, offset int) byte {
 	mask := byte(1 << uint8(offset))
 	return b ^ mask
 }
+
+type BadgerOpenError struct {
+	OrigError error
+}
+
+func (e BadgerOpenError) Error() string {
+	return e.OrigError.Error()
+}

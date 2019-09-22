@@ -79,12 +79,9 @@ waitCommandLoop:
 			}
 		}
 	}
-	// fmt.Println("Test_DBGen END")
 }
 
 func Test_FlipBits(t *testing.T) {
-	// fmt.Println("Test_FlipBits start")
-
 	copyDir := filepath.Join("testdata", "gendb_copy")
 
 	err := os.RemoveAll(copyDir)
@@ -117,40 +114,30 @@ func Test_FlipBits(t *testing.T) {
 		require.NoErrorf(t, err, "spoil bits in %v", fPath)
 	}
 
-	after1, err := allKV(copyDir)
+	after, err := allKV(copyDir)
 	if err != nil {
-		return
+		if _, ok := err.(BadgerOpenError); ok {
+			t.Log("Got error on db open, all ok")
+			return
+		}
+		require.NoErrorf(t, err, "unexpected error while reading keys")
 	}
-	// t.Log("An error on spoiled DB is expected but got nil.")
-	t.Error("An error on spoiled DB is expected but got nil.")
+	t.Log("An error on spoiled DB is expected but got nil.")
 
-	// assert.Errorf(t, err, "%v data dir open", copyDir)
-	if len(before) != len(after1) {
-		// lostKeys
-		t.Fatalf("originally had %v keys, but after spoiing vlog files got %v keys", len(before), len(after1))
-	}
-
-	// after first open database
-	dataDirInfo = readHeavyDir(copyDir)
-	fmt.Printf("dataDirInfo => %#v\n", dataDirInfo)
-
-	after2, err := allKV(copyDir)
-	require.NoErrorf(t, err, "%v data dir open", copyDir)
-	if len(before) != len(after2) {
-		// lostKeys
-		t.Fatalf("was %v keys, but after spoil got %v keys", len(before), len(after2))
+	if len(before) != len(after) {
+		t.Fatalf("originally had %v keys, but after spoiing vlog files got %v keys", len(before), len(after))
 	}
 
 	t.Run("keys_check", func(t *testing.T) {
 		t.Log("keys_check", len(before))
 		for i, kv := range before {
-			require.Equalf(t, kv.K, after2[i].K, "Check keys equality")
+			require.Equalf(t, kv.K, after[i].K, "Check keys equality")
 		}
 	})
 	t.Run("values_check", func(t *testing.T) {
 		t.Log("keys_check", len(before))
 		for i, kv := range before {
-			require.Equalf(t, kv.V, after2[i].V, "Check value of key=%x", kv.K)
+			require.Equalf(t, kv.V, after[i].V, "Check value of key=%x", kv.K)
 		}
 	})
 }
